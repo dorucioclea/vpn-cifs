@@ -51,4 +51,5 @@ RUN chmod 755 /entrypoint.sh
 HEALTHCHECK  --interval=10s --timeout=10s --start-period=10s \
 CMD /sbin/ifconfig tun0
 
-ENTRYPOINT ["/sbin/tini", "-vvv", "-g", "--", "/entrypoint.sh"]
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["/entrypoint.sh"]
