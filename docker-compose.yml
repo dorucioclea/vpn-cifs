@@ -3,11 +3,15 @@ version: '3'
 services:
   vpn:
     container_name: vpn
-    image: jetbrainsinfra/docker-anyconnect-vpn
+    image: test/docker-anyconnect
+    build: .
     environment:
-      - ANYCONNECT_SERVER=${ANYCONNECT_SERVER}
-      - ANYCONNECT_USER=${ANYCONNECT_USER}
-      - ANYCONNECT_PASSWORD=${ANYCONNECT_PASSWORD}
+      - ANYCONNECT_SERVER=${SERVER}
+      - ANYCONNECT_USER=${USER}
+      - ANYCONNECT_PASSWORD=${PASSWORD}
+      - ANYCONNECT_GROUP=${GROUP}
+      - CIFS_HOST=${CIFS_HOST}
+      - CIFS_PATH=${CIFS_PATH}
     networks:
       - default
     privileged: true
@@ -16,11 +20,3 @@ services:
     restart: unless-stopped
     security_opt:
       - label:disable
-  packer:
-    container_name: packer
-    image: alpine
-    tty: true
-    entrypoint: /bin/sleep 10
-    depends_on:
-      - vpn
-    network_mode: "service:vpn"
