@@ -7,11 +7,13 @@
 cleanup() {
     echo "Container stopped, performing cleanup..."
     echo "Unmounting "
-    unmount /mnt/local_share
+    umount /mnt/local_share
 
     echo  "Stopping VPN connection:"
-    sudo ps -aef | grep openconnect
-    sudo kill -9 $(pidof openconnect)
+    pkill -SIGINT openconnect
+    # Remove default gateway route rule when there is already a PPTP connection
+	# Uncomment line below if your computer is connected to internet through a PPTP connection
+	ip r | grep ppp0 && ip r | grep default | head -n1 | xargs sudo ip r del
 }
 
 
