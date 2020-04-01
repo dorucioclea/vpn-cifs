@@ -8,12 +8,12 @@ services:
       context: ./vpn
       dockerfile: Dockerfile
       args:
-        - ANYCONNECT_SERVER=${SERVER}
-        - ANYCONNECT_USER=${USER}
-        - ANYCONNECT_PASSWORD=${PASSWORD}
-        - ANYCONNECT_GROUP=${GROUP}
-        - CIFS_HOST=${CIFS_HOST}
-        - CIFS_PATH=${CIFS_PATH}
+        - ANYCONNECT_SERVER=${ANYCONNECT_SERVER}
+        - ANYCONNECT_USER=${ANYCONNECT_USER}
+        - ANYCONNECT_PASSWORD=${ANYCONNECT_PASSWORD}
+        - ANYCONNECT_GROUP=${ANYCONNECT_GROUP}
+        - ANYCONNECT_CIFS_HOST=${ANYCONNECT_CIFS_HOST}
+        - ANYCONNECT_CIFS_PATH=${ANYCONNECT_CIFS_PATH}
     networks:
       - default
     privileged: true
