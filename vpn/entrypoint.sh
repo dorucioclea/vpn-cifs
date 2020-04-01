@@ -23,11 +23,11 @@ cleanup() {
 
 trap 'cleanup' SIGTERM
 
-echo $ANYCONNECT_PASSWORD | openconnect --authgroup $ANYCONNECT_GROUP $ANYCONNECT_SERVER --user=$ANYCONNECT_USER --timestamp &
+echo $BUILDTIME_ANYCONNECT_PASSWORD | openconnect --authgroup $BUILDTIME_ANYCONNECT_GROUP $BUILDTIME_ANYCONNECT_SERVER --user=$BUILDTIME_ANYCONNECT_USER --timestamp &
 
 sleep 15
 echo "Preparing to mount CIFS share"
-mount -t cifs //$CIFS_HOST/$CIFS_PATH /mnt/local_share  -o user=$ANYCONNECT_USER,password=$NYCONNECT_PASSWORD
+mount -t cifs //$BUILDTIME_CIFS_HOST/$BUILDTIME_CIFS_PATH /mnt/local_share  -o user=$BUILDTIME_ANYCONNECT_USER,password=$BUILDTIME_NYCONNECT_PASSWORD
 echo "Mounted CIFS share"
 
 child_process=$! 
