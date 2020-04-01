@@ -4,14 +4,16 @@ services:
   vpn:
     container_name: vpn
     image: test/docker-anyconnect
-    build: .
-    environment:
-      - ANYCONNECT_SERVER=${SERVER}
-      - ANYCONNECT_USER=${USER}
-      - ANYCONNECT_PASSWORD=${PASSWORD}
-      - ANYCONNECT_GROUP=${GROUP}
-      - CIFS_HOST=${CIFS_HOST}
-      - CIFS_PATH=${CIFS_PATH}
+    build:
+      context: ./vpn
+      dockerfile: Dockerfile
+      args:
+        - ANYCONNECT_SERVER=${SERVER}
+        - ANYCONNECT_USER=${USER}
+        - ANYCONNECT_PASSWORD=${PASSWORD}
+        - ANYCONNECT_GROUP=${GROUP}
+        - CIFS_HOST=${CIFS_HOST}
+        - CIFS_PATH=${CIFS_PATH}
     networks:
       - default
     privileged: true
