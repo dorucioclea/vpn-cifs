@@ -19,7 +19,7 @@ ENV BUILDTIME_ANYCONNECT_GROUP=${ANYCONNECT_GROUP}
 ENV BUILDTIME_CIFS_HOST=${CIFS_HOST}
 ENV BUILDTIME_CIFS_PATH=${CIFS_PATH}
 
-RUN apk add openconnect cifs-utils --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
+RUN apk add openconnect=8.05-r1 cifs-utils=6.9-r1 --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
 
 ADD entrypoint.sh /entrypoint.sh
 RUN mkdir -p /mnt/local_share
