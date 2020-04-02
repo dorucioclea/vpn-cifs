@@ -49,13 +49,10 @@ if [[ -z "${BUILDTIME_ANYCONNECT_GROUP}" ]]; then
 fi
 
 echo $BUILDTIME_ANYCONNECT_PASSWORD | openconnect --authgroup $BUILDTIME_ANYCONNECT_GROUP $BUILDTIME_ANYCONNECT_SERVER --user=$BUILDTIME_ANYCONNECT_USER --pid-file=${PIDFILE} &
-
 OPENVPN_SUBPROCESS=$!
-
 
 [ $? -ne 0 ] && echo "OPENCONNECT VPN client failed to start!" && \
     rm -f ${PIDFILE} && exit 1
 
-sleep 10
 echo 'OPENCONNECT is up and running'
 wait $OPENVPN_SUBPROCESS
