@@ -34,8 +34,6 @@ RUN apk add openconnect=8.05-r1 cifs-utils=6.9-r1 tini=0.18.0-r0 supervisor --no
 COPY supervisord/supervisord.conf /etc/supervisor/supervisord.conf
 COPY scripts/start-vpn.sh /usr/bin/start-vpn.sh
 
-# ADD entrypoint.sh /entrypoint.sh
-# RUN mkdir -p /mnt/local_share
 RUN mkdir -p /vpnclientlogs
 RUN mkdir -p /vpndata
 RUN echo ${BUILDTIME_ANYCONNECT_PASSWORD} >> /vpndata/openconnect.pass
@@ -44,22 +42,13 @@ RUN echo ${BUILDTIME_ANYCONNECT_PASSWORD} >> /vpndata/openconnect.pass
 # Elevate to root user to be able to run chmod
 #
 
-# USER root
 RUN chmod +x /usr/bin/start-vpn.sh
-
-#
-# Make the entrypoint script executable
-#
-
-# RUN chmod 755 /entrypoint.sh
 
 #
 # Define healthchecks for the image 
 #
-# HEALTHCHECK  --interval=10s --timeout=10s --start-period=10s \
-# CMD /sbin/ifconfig tun0
 
-# ENTRYPOINT ["/sbin/tini", "--"]
-# CMD ["/entrypoint.sh"]
+HEALTHCHECK --interval=60s --timeout=15s --start-period=120s \
+             CMD curl -L 'https://api.ipify.org'
 
 ENTRYPOINT ["/sbin/tini", "--", "/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
