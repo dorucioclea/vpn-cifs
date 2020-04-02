@@ -33,9 +33,6 @@ ENV OPENCONNECT_NON-INTER=true
 
 RUN apk add openconnect=8.05-r1 tini=0.18.0-r0 supervisor dos2unix --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
 
-RUN groupadd openconnect && useradd -m openconnect --gid openconnect
-USER openconnect
-
 COPY supervisord/supervisord.conf /etc/supervisor/supervisord.conf
 COPY scripts/start-vpn.sh /usr/bin/start-vpn.sh
 
