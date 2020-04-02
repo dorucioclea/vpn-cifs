@@ -31,25 +31,33 @@ ENV BUILDTIME_CIFS_PATH=${ANYCONNECT_CIFS_PATH}
 
 RUN apk add openconnect=8.05-r1 cifs-utils=6.9-r1 tini=0.18.0-r0 supervisor --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
 
-ADD entrypoint.sh /entrypoint.sh
-RUN mkdir -p /mnt/local_share
+COPY supervisord/supervisord.conf /etc/supervisor/supervisord.conf
+COPY scripts/start-vpn.sh /usr/bin/start-vpn.sh
+
+# ADD entrypoint.sh /entrypoint.sh
+# RUN mkdir -p /mnt/local_share
+RUN mkdir -p /vpnclientlogs
+RUN mkdir -p /vpndata
+RUN echo ${BUILDTIME_ANYCONNECT_PASSWORD} >> /vpndata/openconnect.pass
+
 #
 # Elevate to root user to be able to run chmod
 #
 
-USER root
+# USER root
+RUN chmod +x /usr/bin/start-vpn.sh
 
 #
 # Make the entrypoint script executable
 #
 
-RUN chmod 755 /entrypoint.sh
+# RUN chmod 755 /entrypoint.sh
 
 #
 # Define healthchecks for the image 
 #
-HEALTHCHECK  --interval=10s --timeout=10s --start-period=10s \
-CMD /sbin/ifconfig tun0
+# HEALTHCHECK  --interval=10s --timeout=10s --start-period=10s \
+# CMD /sbin/ifconfig tun0
 
 # ENTRYPOINT ["/sbin/tini", "--"]
 # CMD ["/entrypoint.sh"]
