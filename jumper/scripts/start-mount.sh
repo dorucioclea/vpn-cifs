@@ -18,18 +18,7 @@ trap "stop" EXIT
 trap "stop" SIGTERM
 trap "stop" SIGHUP
 
-# while [ 1 ]; do
-#     wget -q --spider https://api.ipify.org
-#     if [ $? -eq 0 ]; then
-#         echo "VPN connectivity is up"
-#         break
-#     else
-#         echo "Offline"
-#     fi
-#     sleep 1
-# done
-
-# sleep 20
+sleep 10
 
 echo "Mounting CIFS share"
 mount -t cifs //$BUILDTIME_CIFS_HOST/$BUILDTIME_CIFS_PATH /mnt/local_share  -o user=$BUILDTIME_ANYCONNECT_USER,password=$BUILDTIME_ANYCONNECT_PASSWORD &
