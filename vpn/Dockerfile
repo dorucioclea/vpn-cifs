@@ -5,6 +5,8 @@ ARG ALPINE_VERSION=3.11.5
 
 FROM alpine:${ALPINE_VERSION}
 
+LABEL openconnect.documentation="https://www.infradead.org/openconnect/index.html"
+
 #
 # VERY IMPORTANT: In order for our entrypoint/command scripts to receive signal to stop, we need to specify that through STOPSIGNAL
 #
@@ -25,7 +27,14 @@ ENV BUILDTIME_ANYCONNECT_USER=${ANYCONNECT_USER}
 ENV BUILDTIME_ANYCONNECT_PASSWORD=${ANYCONNECT_PASSWORD}
 ENV BUILDTIME_ANYCONNECT_GROUP=${ANYCONNECT_GROUP}
 
+ENV OPENCONNECT_TIMESTAMP=true
+ENV OPENCONNECT_VERBOSE=false
+ENV OPENCONNECT_NON-INTER=true
+
 RUN apk add openconnect=8.05-r1 tini=0.18.0-r0 supervisor dos2unix --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
+
+RUN groupadd openconnect && useradd -m openconnect --gid openconnect
+USER openconnect
 
 COPY supervisord/supervisord.conf /etc/supervisor/supervisord.conf
 COPY scripts/start-vpn.sh /usr/bin/start-vpn.sh
