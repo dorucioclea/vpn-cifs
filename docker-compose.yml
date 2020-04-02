@@ -22,3 +22,20 @@ services:
       - NET_ADMIN
     security_opt:
       - label:disable
+  jumper:
+    container_name: jumper
+    image: test/jumper
+    stop_signal: SIGINT
+    build:
+      context: ./jumper
+      dockerfile: Dockerfile
+      args: 
+        - ANYCONNECT_USER=${ANYCONNECT_USER}
+        - ANYCONNECT_PASSWORD=${ANYCONNECT_PASSWORD}
+        - ANYCONNECT_CIFS_HOST=${ANYCONNECT_CIFS_HOST}
+        - ANYCONNECT_CIFS_PATH=${ANYCONNECT_CIFS_PATH}
+    network_mode: service:vpn
+    privileged: true
+    depends_on: 
+      - vpn
+    
