@@ -29,19 +29,12 @@ ENV BUILDTIME_ANYCONNECT_GROUP=${ANYCONNECT_GROUP}
 ENV BUILDTIME_CIFS_HOST=${ANYCONNECT_CIFS_HOST}
 ENV BUILDTIME_CIFS_PATH=${ANYCONNECT_CIFS_PATH}
 
-RUN apk add openconnect=8.05-r1 cifs-utils=6.9-r1 tini=0.18.0-r0 supervisor --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
+RUN apk add openconnect=8.05-r1 cifs-utils=6.9-r1 tini=0.18.0-r0 supervisor dos2unix --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
 
 COPY supervisord/supervisord.conf /etc/supervisor/supervisord.conf
 COPY scripts/start-vpn.sh /usr/bin/start-vpn.sh
 
-RUN mkdir -p /vpnclientlogs
-RUN mkdir -p /vpndata
-RUN echo ${BUILDTIME_ANYCONNECT_PASSWORD} >> /vpndata/openconnect.pass
-
-#
-# Elevate to root user to be able to run chmod
-#
-
+RUN dos2unix /usr/bin/start-vpn.sh
 RUN chmod +x /usr/bin/start-vpn.sh
 
 #
