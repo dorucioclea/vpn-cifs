@@ -1,12 +1,13 @@
 #!/bin/sh
 echo 'Starting OPENCONNECT VPN client'
 
-# Set pidfile
+# 
+# Set pidfile path
+# 
 PIDFILE="/var/run/openconnect.pid"
-PASSWORD_FILE="/vpndata/openconnect.pass"
 
 function stop() {
-    echo "Cleanup openconnect process before exiting"
+    echo "Stopping vpn connection"
     if [ -f ${PIDFILE} ] && ps -p $(< ${PIDFILE}) &> /dev/null; then
         # Pid exists, kill process and remove pidfile
         [ ${UID} -ne 0 ] && echo "You must be root to run this script." && exit 1
@@ -51,7 +52,7 @@ fi
 echo $BUILDTIME_ANYCONNECT_PASSWORD | openconnect --authgroup $BUILDTIME_ANYCONNECT_GROUP $BUILDTIME_ANYCONNECT_SERVER --user=$BUILDTIME_ANYCONNECT_USER --pid-file=${PIDFILE} &
 VPN_PROCESS=$!
 
-[ $? -ne 0 ] && echo "OPENCONNECT VPN client failed to start!" && \
+[ $? -ne 0 ] && echo "VPN failed to start!" && \
     rm -f ${PIDFILE} && exit 1
 
 #
