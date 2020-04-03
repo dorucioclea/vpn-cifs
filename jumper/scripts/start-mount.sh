@@ -1,11 +1,10 @@
 #!/bin/sh
 function stop() {
     echo "Cleanup mount before exiting"
-    # #
-    # # Checks if we have a mount point on /mnt/local_share
-    # #
-    [[ "$(df -P /mnt/local_share | tail -1 | cut -d' ' -f 1)" == "//$BUILDTIME_CIFS_HOST/$BUILDTIME_CIFS_PATH" ]] && umount /mnt/local_share || echo "No mount point to clean up"
-
+    # Checks if we have a mount point on /mnt/local_share
+    [[ "$(df -P /mnt/local_share | tail -1 | cut -d' ' -f 1)" == "//$BUILDTIME_CIFS_HOST/$BUILDTIME_CIFS_PATH" ]] \
+        && umount /mnt/local_share \
+        || echo "No mount point to clean up"
 }
 
 #
@@ -46,7 +45,12 @@ fi
 sleep 10
 
 mount -t cifs //$BUILDTIME_CIFS_HOST/$BUILDTIME_CIFS_PATH /mnt/local_share  -o user=$BUILDTIME_ANYCONNECT_USER,password=$BUILDTIME_ANYCONNECT_PASSWORD &
-echo "CIFS share mounted"
 
-# wait - non blocking
+[ $? -ne 0 ] && echo "Could not mount share" || echo "Share mounted"
+
+#
+# Wait non blocking.
+#
+# Unlike the sleep command, wait allows to react (trap) to signals
+#
 tail -f /dev/null & wait
