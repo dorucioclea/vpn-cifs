@@ -1,5 +1,4 @@
 #!/bin/sh
-echo 'Starting OPENCONNECT VPN client'
 
 # 
 # Set pidfile path
