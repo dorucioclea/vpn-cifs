@@ -29,22 +29,22 @@ trap "stop" SIGHUP
 #
 
 if [[ -z "${BUILDTIME_ANYCONNECT_SERVER}" ]]; then
-  echo 'ANYCONNECT_SERVER is not defined. Process will exit'
+  echo 'SERVER is not defined. Process will exit'
   exit 1
 fi
 
 if [[ -z "${BUILDTIME_ANYCONNECT_USER}" ]]; then
-  echo 'ANYCONNECT_USER is not defined. Process will exit'
+  echo 'USER is not defined. Process will exit'
   exit 1
 fi
 
 if [[ -z "${BUILDTIME_ANYCONNECT_PASSWORD}" ]]; then
-  echo 'ANYCONNECT_PASSWORD is not defined. Process will exit'
+  echo 'PASSWORD is not defined. Process will exit'
   exit 1
 fi
 
 if [[ -z "${BUILDTIME_ANYCONNECT_GROUP}" ]]; then
-  echo 'ANYCONNECT_GROUP is not defined. Process will exit'
+  echo 'GROUP is not defined. Process will exit'
   exit 1
 fi
 
