@@ -30,7 +30,12 @@ ENV OPENCONNECT_TIMESTAMP=true
 ENV OPENCONNECT_VERBOSE=false
 ENV OPENCONNECT_NON-INTER=true
 
-RUN apk add openconnect=8.05-r1 tini=0.18.0-r0 supervisor dos2unix --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
+RUN apk add \
+    openconnect=8.05-r1 \
+    tini=0.18.0-r0 \
+    supervisor \
+    dos2unix \
+    --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/
 
 COPY supervisord/supervisord.conf /etc/supervisor/supervisord.conf
 COPY scripts/connect-to-vpn.sh /usr/bin/connect-to-vpn.sh

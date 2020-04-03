@@ -24,7 +24,12 @@ ENV BUILDTIME_NETWORK_SHARE_DIRECTORY=${NETWORK_SHARE_DIRECTORY}
 ENV BUILDTIME_NETWORK_SHARE_USER=${NETWORK_SHARE_USER}
 ENV BUILDTIME_NETWORK_SHARE_PASSWORD=${NETWORK_SHARE_PASSWORD}
 
-RUN apk add cifs-utils=6.9-r1 tini=0.18.0-r0 supervisor dos2unix wget --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
+RUN apk add \
+    cifs-utils=6.9-r1 \
+    tini=0.18.0-r0 \
+    supervisor \
+    dos2unix \
+    --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ 
 
 COPY supervisord/supervisord.conf /etc/supervisor/supervisord.conf
 COPY scripts/connect-to-network-share.sh /usr/bin/connect-to-network-share.sh
