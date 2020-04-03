@@ -1,5 +1,5 @@
 #!/bin/sh
-function stop() {
+function cleanup_on_exit() {
     echo "Cleanup network share before exiting"
     # Checks if we have a mount point on /mnt/local_share
     [[ "$(df -P /mnt/local_share | tail -1 | cut -d' ' -f 1)" == "//$BUILDTIME_NETWORK_SHARE_HOST/$BUILDTIME_NETWORK_SHARE_DIRECTORY" ]] \
@@ -11,11 +11,11 @@ function stop() {
 # Trap SIGTERM and SIGINT and execute 
 #
 # Run the "stop" command when receiving SIGNAL
-trap "stop" SIGINT
-trap "stop" SIGKILL
-trap "stop" EXIT
-trap "stop" SIGTERM
-trap "stop" SIGHUP
+trap "cleanup_on_exit" SIGINT
+trap "cleanup_on_exit" SIGKILL
+trap "cleanup_on_exit" EXIT
+trap "cleanup_on_exit" SIGTERM
+trap "cleanup_on_exit" SIGHUP
 
 
 #
