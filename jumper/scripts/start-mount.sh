@@ -1,6 +1,6 @@
 #!/bin/sh
 function stop() {
-    echo "Cleanup mount process before exiting"
+    echo "Cleanup mount before exiting"
     # #
     # # Checks if we have a mount point on /mnt/local_share
     # #
@@ -18,11 +18,34 @@ trap "stop" EXIT
 trap "stop" SIGTERM
 trap "stop" SIGHUP
 
+
+#
+# Check we have all environment variables needed
+#
+
+if [[ -z "${BUILDTIME_ANYCONNECT_USER}" ]]; then
+  echo 'USER is not defined. Process will exit'
+  exit 1
+fi
+
+if [[ -z "${BUILDTIME_ANYCONNECT_PASSWORD}" ]]; then
+  echo 'PASSWORD is not defined. Process will exit'
+  exit 1
+fi
+
+if [[ -z "${BUILDTIME_CIFS_HOST}" ]]; then
+  echo 'Cifs share host is not defined. Process will exit'
+  exit 1
+fi
+
+if [[ -z "${BUILDTIME_CIFS_PATH}" ]]; then
+  echo 'Cifs share path is not defined. Process will exit'
+  exit 1
+fi
+
 sleep 10
 
-echo "Mounting CIFS share"
 mount -t cifs //$BUILDTIME_CIFS_HOST/$BUILDTIME_CIFS_PATH /mnt/local_share  -o user=$BUILDTIME_ANYCONNECT_USER,password=$BUILDTIME_ANYCONNECT_PASSWORD &
-sleep 4
 echo "CIFS share mounted"
 
 # wait - non blocking
