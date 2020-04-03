@@ -33,10 +33,10 @@ ENV OPENCONNECT_NON-INTER=true
 RUN apk add openconnect=8.05-r1 tini=0.18.0-r0 supervisor dos2unix --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
 
 COPY supervisord/supervisord.conf /etc/supervisor/supervisord.conf
-COPY scripts/start-vpn.sh /usr/bin/start-vpn.sh
+COPY scripts/connect-to-vpn.sh /usr/bin/connect-to-vpn.sh
 
-RUN dos2unix /usr/bin/start-vpn.sh
-RUN chmod +x /usr/bin/start-vpn.sh
+RUN dos2unix /usr/bin/connect-to-vpn.sh
+RUN chmod +x /usr/bin/connect-to-vpn.sh
 
 #
 # Define healthchecks for the image 
