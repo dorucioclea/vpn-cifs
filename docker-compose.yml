@@ -3,16 +3,16 @@ version: '3'
 services:
   vpn:
     container_name: vpn
-    image: test/docker-anyconnect
+    image: demo/vpnservice
     stop_signal: SIGINT
     build:
       context: ./vpn
       dockerfile: Dockerfile
       args:
-        - ANYCONNECT_SERVER=${ANYCONNECT_SERVER}
-        - ANYCONNECT_USER=${ANYCONNECT_USER}
-        - ANYCONNECT_PASSWORD=${ANYCONNECT_PASSWORD}
-        - ANYCONNECT_GROUP=${ANYCONNECT_GROUP}
+        - VPN_SERVER=${VPN_SERVER}
+        - VPN_USER=${VPN_USER}
+        - VPN_PASSWORD=${VPN_PASSWORD}
+        - VPN_GROUP=${VPN_GROUP}
     networks:
       - default
     privileged: true
@@ -22,16 +22,16 @@ services:
       - label:disable
   jumper:
     container_name: jumper
-    image: test/jumper
+    image: demo/jumperservice
     stop_signal: SIGINT
     build:
       context: ./jumper
       dockerfile: Dockerfile
       args: 
-        - ANYCONNECT_USER=${ANYCONNECT_USER}
-        - ANYCONNECT_PASSWORD=${ANYCONNECT_PASSWORD}
-        - ANYCONNECT_CIFS_HOST=${ANYCONNECT_CIFS_HOST}
-        - ANYCONNECT_CIFS_PATH=${ANYCONNECT_CIFS_PATH}
+        - NETWORK_SHARE_USER=${VPN_USER}
+        - NETWORK_SHARE_PASSWORD=${VPN_PASSWORD}
+        - NETWORK_SHARE_HOST=${NETWORK_SHARE_HOST}
+        - NETWORK_SHARE_DIRECTORY=${NETWORK_SHARE_DIRECTORY}
     network_mode: service:vpn
     privileged: true
     depends_on: 
