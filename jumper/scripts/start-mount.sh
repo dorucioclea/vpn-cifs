@@ -1,10 +1,10 @@
 #!/bin/sh
 function stop() {
-    echo "Cleanup mount before exiting"
+    echo "Cleanup network share before exiting"
     # Checks if we have a mount point on /mnt/local_share
-    [[ "$(df -P /mnt/local_share | tail -1 | cut -d' ' -f 1)" == "//$BUILDTIME_CIFS_HOST/$BUILDTIME_CIFS_PATH" ]] \
+    [[ "$(df -P /mnt/local_share | tail -1 | cut -d' ' -f 1)" == "//$BUILDTIME_NETWORK_SHARE_HOST/$BUILDTIME_NETWORK_SHARE_DIRECTORY" ]] \
         && umount /mnt/local_share \
-        || echo "No mount point to clean up"
+        || echo "No network share originating in //$BUILDTIME_NETWORK_SHARE_HOST/$BUILDTIME_NETWORK_SHARE_DIRECTORY found"
 }
 
 #
@@ -22,31 +22,31 @@ trap "stop" SIGHUP
 # Check we have all environment variables needed
 #
 
-if [[ -z "${BUILDTIME_ANYCONNECT_USER}" ]]; then
-  echo 'USER is not defined. Process will exit'
+if [[ -z "${BUILDTIME_NETWORK_SHARE_USER}" ]]; then
+  echo 'Network share user is not defined. Process will exit'
   exit 1
 fi
 
-if [[ -z "${BUILDTIME_ANYCONNECT_PASSWORD}" ]]; then
-  echo 'PASSWORD is not defined. Process will exit'
+if [[ -z "${BUILDTIME_NETWORK_SHARE_PASSWORD}" ]]; then
+  echo 'Network share password is not defined. Process will exit'
   exit 1
 fi
 
-if [[ -z "${BUILDTIME_CIFS_HOST}" ]]; then
-  echo 'Cifs share host is not defined. Process will exit'
+if [[ -z "${BUILDTIME_NETWORK_SHARE_HOST}" ]]; then
+  echo 'Network share share host is not defined. Process will exit'
   exit 1
 fi
 
-if [[ -z "${BUILDTIME_CIFS_PATH}" ]]; then
-  echo 'Cifs share path is not defined. Process will exit'
+if [[ -z "${BUILDTIME_NETWORK_SHARE_DIRECTORY}" ]]; then
+  echo 'Network share path is not defined. Process will exit'
   exit 1
 fi
 
 sleep 10
 
-mount -t cifs //$BUILDTIME_CIFS_HOST/$BUILDTIME_CIFS_PATH /mnt/local_share  -o user=$BUILDTIME_ANYCONNECT_USER,password=$BUILDTIME_ANYCONNECT_PASSWORD &
+mount -t cifs //$BUILDTIME_NETWORK_SHARE_HOST/$BUILDTIME_NETWORK_SHARE_DIRECTORY /mnt/local_share  -o user=$BUILDTIME_NETWORK_SHARE_USER,password=$BUILDTIME_NETWORK_SHARE_PASSWORD &
 
-[ $? -ne 0 ] && echo "Could not mount share" || echo "Share mounted"
+[ $? -ne 0 ] && echo "Could not mount network share" || echo "Network share mounted"
 
 #
 # Wait non blocking.
