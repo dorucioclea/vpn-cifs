@@ -44,7 +44,10 @@ fi
 
 sleep 10
 
-mount -t cifs //$BUILDTIME_NETWORK_SHARE_HOST/$BUILDTIME_NETWORK_SHARE_DIRECTORY /mnt/local_share  -o user=$BUILDTIME_NETWORK_SHARE_USER,password=$BUILDTIME_NETWORK_SHARE_PASSWORD &
+mount -t cifs //$BUILDTIME_NETWORK_SHARE_HOST/$BUILDTIME_NETWORK_SHARE_DIRECTORY /mnt/local_share  -o vers=3.0,user=$BUILDTIME_NETWORK_SHARE_USER,password=$BUILDTIME_NETWORK_SHARE_PASSWORD,iocharset=utf8,file_mode=0777,dir_mode=0777,domain=$BUILDTIME_NETWORK_SHARE_DOMAIN &
+
+# this didn't work on windows
+# mount -t cifs //$BUILDTIME_NETWORK_SHARE_HOST/$BUILDTIME_NETWORK_SHARE_DIRECTORY /mnt/local_share  -o user=$BUILDTIME_NETWORK_SHARE_USER,password=$BUILDTIME_NETWORK_SHARE_PASSWORD &
 
 [ $? -ne 0 ] && echo "Could not mount network share" || echo "Network share mounted"
 

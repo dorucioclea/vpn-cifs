@@ -3,7 +3,7 @@ version: '3'
 services:
   vpn:
     container_name: vpn
-    image: demo/vpnservice
+    image: vpn
     stop_signal: SIGINT
     build:
       context: ./vpn
@@ -22,13 +22,14 @@ services:
       - label:disable
   jumper:
     container_name: jumper
-    image: demo/jumperservice
+    image: jumper
     stop_signal: SIGINT
     build:
       context: ./jumper
       dockerfile: Dockerfile
       args: 
         - NETWORK_SHARE_USER=${VPN_USER}
+        - NETWORK_SHARE_DOMAIN=${NETWORK_SHARE_DOMAIN}
         - NETWORK_SHARE_PASSWORD=${VPN_PASSWORD}
         - NETWORK_SHARE_HOST=${NETWORK_SHARE_HOST}
         - NETWORK_SHARE_DIRECTORY=${NETWORK_SHARE_DIRECTORY}
