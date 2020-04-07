@@ -20,6 +20,16 @@ services:
       - NET_ADMIN
     security_opt:
       - label:disable
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - default
   jumper:
     container_name: jumper
     image: jumper
