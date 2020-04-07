@@ -34,14 +34,28 @@ RUN apk add \
     openconnect=8.05-r1 \
     tini=0.18.0-r0 \
     supervisor \
-    gcc \
+    gcc musl-dev \
     dos2unix \
     --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/
 
+# This hack is widely applied to avoid python printing issues in docker containers.
+# See: https://github.com/Docker-Hub-frolvlad/docker-alpine-python3/pull/13
+ENV PYTHONUNBUFFERED=1
+
+RUN echo "**** install Python ****" && \
+    apk add --no-cache python3 && \
+    if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi && \
+    \
+    echo "**** install pip ****" && \
+    python3 -m ensurepip && \
+    rm -r /usr/lib/python*/ensurepip && \
+    pip3 install --no-cache --upgrade pip setuptools wheel && \
+    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi
+
 COPY /deps/vpn-slice-master.zip /usr/bin/deps/vpn-slice.zip
 
-RUN apk add --no-cache python3 bind-tools && pip3 install --upgrade pip 
-RUN pip3 install --verbose /usr/bin/deps/vpn-slice.zip
+RUN apk add --no-cache bind-tools
+RUN pip3 install --user --verbose /usr/bin/deps/vpn-slice.zip
 
 # always add the docker DNS server
 
