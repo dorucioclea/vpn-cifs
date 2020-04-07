@@ -17,6 +17,7 @@ ARG VPN_SERVER
 ARG VPN_GROUP
 ARG VPN_PASSWORD
 ARG VPN_USER
+ARG VPN_PROTECTED_ROUTES
 
 ENV LANG=en_US.UTF-8
 ENV TZ=UTC
@@ -25,58 +26,55 @@ ENV BUILDTIME_VPN_SERVER=${VPN_SERVER}
 ENV BUILDTIME_VPN_USER=${VPN_USER}
 ENV BUILDTIME_VPN_PASSWORD=${VPN_PASSWORD}
 ENV BUILDTIME_VPN_GROUP=${VPN_GROUP}
+ENV BUILDTIME_VPN_PROTECTED_ROUTES=${VPN_PROTECTED_ROUTES}
 
 ENV OPENCONNECT_TIMESTAMP=true
 ENV OPENCONNECT_VERBOSE=false
 ENV OPENCONNECT_NON-INTER=true
 
+RUN apk upgrade --no-cache
+
 RUN apk add \
     openconnect=8.05-r1 \
-    tini=0.18.0-r0 \
-    supervisor \
-    gcc musl-dev \
     dos2unix \
+    supervisor \
+    tini=0.18.0-r0 \
     --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/
 
-# This hack is widely applied to avoid python printing issues in docker containers.
-# See: https://github.com/Docker-Hub-frolvlad/docker-alpine-python3/pull/13
-ENV PYTHONUNBUFFERED=1
+#
+# For a more advanced control over routing, uncomment this and also use the vpn-slice commented line in the connect-to-vpn.sh script
+#
+#  RUN apk add --no-cache \
+#     build-base \
+#     python3 \
+#     python3-dev \
+#     bind-tools \
+#   && pip3 install --no-cache-dir --upgrade pip \
+#   && rm -rf /var/cache/* \
+#   && rm -rf /root/.cache/*
 
-RUN echo "**** install Python ****" && \
-    apk add --no-cache python3 && \
-    if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi && \
-    \
-    echo "**** install pip ****" && \
-    python3 -m ensurepip && \
-    rm -r /usr/lib/python*/ensurepip && \
-    pip3 install --no-cache --upgrade pip setuptools wheel && \
-    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi
+# RUN cd /usr/bin \
+#   && ln -sf python3 python \
+#   && ln -sf pip3 pip
 
-COPY /deps/vpn-slice-master.zip /usr/bin/deps/vpn-slice.zip
-
-RUN apk add --no-cache bind-tools
-RUN pip3 install --user --verbose /usr/bin/deps/vpn-slice.zip
+# RUN mkdir -p /deps
+# COPY /deps/vpn-slice-master.zip /deps/vpn-slice.zip
+# RUN pip3 install /deps/vpn-slice.zip
 
 # always add the docker DNS server
 
 RUN grep -qxF 'nameserver 127.0.0.11' /etc/resolv.conf || echo 'nameserver 127.0.0.11' >> /etc/resolv.conf
-
 COPY supervisord/supervisord.conf /etc/supervisor/supervisord.conf
 COPY scripts/connect-to-vpn.sh /usr/bin/connect-to-vpn.sh
 
 # Use an up-to-date version of vpnc-script
 # https://www.infradead.org/openconnect/vpnc-script.html
+
 COPY scripts/vpnc-script /etc/vpnc/vpnc-script
 
 RUN dos2unix /usr/bin/connect-to-vpn.sh
+# RUN dos2unix /etc/vpnc/vpnc-script
 RUN chmod +x /usr/bin/connect-to-vpn.sh
 RUN chmod 755 /etc/vpnc/vpnc-script
-
-#
-# Define healthchecks for the image 
-#
-
-HEALTHCHECK --interval=60s --timeout=15s --start-period=120s \
-             CMD curl -L 'https://api.ipify.org'
 
 ENTRYPOINT ["/sbin/tini", "--", "/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]

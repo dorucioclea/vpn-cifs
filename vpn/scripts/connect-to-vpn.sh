@@ -48,6 +48,13 @@ if [[ -z "${BUILDTIME_VPN_GROUP}" ]]; then
   exit 1
 fi
 
+# echo 'Using vpn-slice with following ip routes'
+# echo ${BUILDTIME_VPN_PROTECTED_ROUTES}
+
+#
+# Uncomment this if you're using vpn-slice
+#
+# echo $BUILDTIME_VPN_PASSWORD | openconnect --no-dtls --authgroup $BUILDTIME_VPN_GROUP $BUILDTIME_VPN_SERVER --user=$BUILDTIME_VPN_USER --pid-file=${OPENCONNECT_PROCESS_PIDFILE} --script='vpn-slice ${BUILDTIME_VPN_PROTECTED_ROUTES}' &
 echo $BUILDTIME_VPN_PASSWORD | openconnect --no-dtls --authgroup $BUILDTIME_VPN_GROUP $BUILDTIME_VPN_SERVER --user=$BUILDTIME_VPN_USER --pid-file=${OPENCONNECT_PROCESS_PIDFILE} &
 VPN_PROCESS=$!
 

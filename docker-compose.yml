@@ -13,6 +13,7 @@ services:
         - VPN_USER=${VPN_USER}
         - VPN_PASSWORD=${VPN_PASSWORD}
         - VPN_GROUP=${VPN_GROUP}
+        # - VPN_PROTECTED_ROUTES=${VPN_PROTECTED_ROUTES}
     networks:
       - default
     privileged: true
