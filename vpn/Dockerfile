@@ -34,14 +34,29 @@ RUN apk add \
     openconnect=8.05-r1 \
     tini=0.18.0-r0 \
     supervisor \
+    gcc \
     dos2unix \
     --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/
+
+COPY /deps/vpn-slice-master.zip /usr/bin/deps/vpn-slice.zip
+
+RUN apk add --no-cache python3 bind-tools && pip3 install --upgrade pip 
+RUN pip3 install --verbose /usr/bin/deps/vpn-slice.zip
+
+# always add the docker DNS server
+
+RUN grep -qxF 'nameserver 127.0.0.11' /etc/resolv.conf || echo 'nameserver 127.0.0.11' >> /etc/resolv.conf
 
 COPY supervisord/supervisord.conf /etc/supervisor/supervisord.conf
 COPY scripts/connect-to-vpn.sh /usr/bin/connect-to-vpn.sh
 
+# Use an up-to-date version of vpnc-script
+# https://www.infradead.org/openconnect/vpnc-script.html
+COPY scripts/vpnc-script /etc/vpnc/vpnc-script
+
 RUN dos2unix /usr/bin/connect-to-vpn.sh
 RUN chmod +x /usr/bin/connect-to-vpn.sh
+RUN chmod 755 /etc/vpnc/vpnc-script
 
 #
 # Define healthchecks for the image 
