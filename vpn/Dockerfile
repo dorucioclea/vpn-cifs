@@ -33,6 +33,10 @@ ENV OPENCONNECT_NON-INTER=true
 
 # Refresh apk index
 RUN apk --update --no-progress  --no-cache upgrade
+
+#
+# Add run utils
+#
 RUN apk add \
     dos2unix \
     supervisor \
@@ -66,10 +70,24 @@ RUN apk add --no-progress --virtual .build-deps \
 	automake \
         libtool \
 	libxml2-dev \
-         curl file g++ gnutls-dev gpgme gzip libev-dev \
-                    libnl3-dev libseccomp-dev libxml2-dev  linux-headers \
-                    linux-pam-dev make readline-dev tar \
-                    sed readline procps
+        curl \
+        file \
+        g++ \
+        gnutls-dev \
+        gpgme \
+        gzip \
+        libev-dev \
+        libnl3-dev \
+        libseccomp-dev \
+        libxml2-dev  \
+        linux-headers \
+        linux-pam-dev \
+        make \
+        readline-dev \
+        tar \
+        sed \
+        readline \
+        procps
 
 #
 # Copy the stoken library dependency
@@ -86,33 +104,30 @@ RUN cd /tmp/build/stoken \
         && cd /
 
 RUN set -ex \
-
             ## Install runtime dependencies
-
             && apk add --no-progress --virtual .openconnect-run-deps \
-                    gnutls gnutls-utils iptables libev libintl \
-                    libnl3 libseccomp linux-pam openssl \
-                    libxml2 nmap-ncat socat openssh-client \
-                    p11-kit libproxy \
-
-            ## Install build dependencies - these are deleted after the build
-
-            && apk add --no-progress --virtual .openconnect-build-deps \
-                    curl file g++ gnutls-dev gpgme gzip libev-dev \
-                    libnl3-dev libseccomp-dev libxml2-dev  linux-headers \
-                    linux-pam-dev make readline-dev tar \
-                    sed readline procps \
-
+                gnutls \
+                gnutls-utils \
+                iptables \
+                libev \
+                libintl \
+                libnl3 \
+                libseccomp \
+                linux-pam \
+                openssl \
+                libxml2 \
+                nmap-ncat \
+                socat \
+                openssh-client \
+                p11-kit \
+                libproxy \
             ## Build and install
-
             && cd /tmp/build/openconnect \
             && ./configure --with-vpnc-script=/etc/vpnc/vpnc-script \
             && make \
             && make install \
             && cd / \
-
             # Cleanup
-
             && apk del .build-deps
 
 ENTRYPOINT ["/sbin/tini", "--", "/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
