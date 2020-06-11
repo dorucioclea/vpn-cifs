@@ -31,7 +31,9 @@ ENV OPENCONNECT_TIMESTAMP=true
 ENV OPENCONNECT_VERBOSE=false
 ENV OPENCONNECT_NON-INTER=true
 
-# Refresh apk index
+# 
+# Refresh apk index and upgrade
+#
 RUN apk --update --no-progress  --no-cache upgrade
 
 #
@@ -43,19 +45,37 @@ RUN apk add \
     tini=0.18.0-r0 \
     --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/
 
-# always add the docker DNS server
+#
+# Always add the docker DNS server
+#
 RUN grep -qxF 'nameserver 127.0.0.11' /etc/resolv.conf || echo 'nameserver 127.0.0.11' >> /etc/resolv.conf
-COPY supervisord/supervisord.conf /etc/supervisor/supervisord.conf
-COPY scripts/connect-to-vpn.sh /usr/bin/connect-to-vpn.sh
 
+#
 # Use an up-to-date version of vpnc-script
 # https://www.infradead.org/openconnect/vpnc-script.html
+#
+# Convert it to unix line endings
+# Make it an executable
+#
 
 COPY scripts/vpnc-script /etc/vpnc/vpnc-script
-RUN dos2unix /usr/bin/connect-to-vpn.sh
 RUN dos2unix /etc/vpnc/vpnc-script
-RUN chmod +x /usr/bin/connect-to-vpn.sh
 RUN chmod 755 /etc/vpnc/vpnc-script
+
+#
+# Copy connect to vpn script
+# Convert it to unix line endings
+# Make it an executable
+#
+COPY scripts/connect-to-vpn.sh /usr/bin/connect-to-vpn.sh
+RUN dos2unix /usr/bin/connect-to-vpn.sh
+RUN chmod +x /usr/bin/connect-to-vpn.sh
+
+#
+# Copy the supervisord script
+#
+COPY supervisord/supervisord.conf /etc/supervisor/supervisord.conf
+
 
 #
 # Copy the openconnect library dependency
@@ -64,12 +84,15 @@ RUN mkdir -p /tmp/build/openconnect
 COPY deps/libs/openconnect-8.10.tar.gz /tmp/openconnect.tar.gz
 RUN tar -xf /tmp/openconnect.tar.gz -C /tmp/build/openconnect --strip-components=1
 
+#
+# Install the build dependencies - these will be uninstalled at the end
+#
 RUN apk add --no-progress --virtual .build-deps \
         bash \
         autoconf \
-	automake \
+        automake \
         libtool \
-	libxml2-dev \
+        libxml2-dev \
         curl \
         file \
         g++ \
@@ -90,12 +113,35 @@ RUN apk add --no-progress --virtual .build-deps \
         procps
 
 #
+# Install runtime dependencies
+#
+RUN apk add --no-progress --virtual .openconnect-run-deps \
+        gnutls \
+        gnutls-utils \
+        iptables \
+        libev \
+        libintl \
+        libnl3 \
+        libseccomp \
+        linux-pam \
+        openssl \
+        libxml2 \
+        nmap-ncat \
+        socat \
+        openssh-client \
+        p11-kit \
+        libproxy
+
+#
 # Copy the stoken library dependency
 #
 RUN mkdir -p /tmp/build/stoken
 COPY deps/libs/stoken-0.92.tar.gz /tmp/stoken.tar.gz
 RUN tar -xf /tmp/stoken.tar.gz -C /tmp/build/stoken --strip-components=1
 
+#
+# Build and install stoken
+#
 RUN cd /tmp/build/stoken \
         && bash autogen.sh \
         && ./configure \
@@ -103,31 +149,19 @@ RUN cd /tmp/build/stoken \
         && make \
         && cd /
 
+#
+# Build and install openconnect
+#
 RUN set -ex \
-            ## Install runtime dependencies
-            && apk add --no-progress --virtual .openconnect-run-deps \
-                gnutls \
-                gnutls-utils \
-                iptables \
-                libev \
-                libintl \
-                libnl3 \
-                libseccomp \
-                linux-pam \
-                openssl \
-                libxml2 \
-                nmap-ncat \
-                socat \
-                openssh-client \
-                p11-kit \
-                libproxy \
-            ## Build and install
-            && cd /tmp/build/openconnect \
-            && ./configure --with-vpnc-script=/etc/vpnc/vpnc-script \
-            && make \
-            && make install \
-            && cd / \
-            # Cleanup
-            && apk del .build-deps
+        && cd /tmp/build/openconnect \
+        && ./configure --with-vpnc-script=/etc/vpnc/vpnc-script \
+        && make \
+        && make install \
+        && cd /
+
+#
+# Remove build dependencies for openconnect and stoken
+#
+RUN apk del .build-deps
 
 ENTRYPOINT ["/sbin/tini", "--", "/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
