@@ -13,6 +13,7 @@ services:
         - VPN_USER=${VPN_USER}
         - VPN_PASSWORD=${VPN_PASSWORD}
         - VPN_GROUP=${VPN_GROUP}
+        - VPN_CERT_HASH=${VPN_CERT_HASH}
     networks:
       - default
     privileged: true
@@ -20,6 +21,16 @@ services:
       - NET_ADMIN
     security_opt:
       - label:disable
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - default
   jumper:
     container_name: jumper
     image: jumper
