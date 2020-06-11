@@ -39,7 +39,6 @@ RUN apk add \
     tini=0.18.0-r0 \
     --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/
 
-
 # always add the docker DNS server
 RUN grep -qxF 'nameserver 127.0.0.11' /etc/resolv.conf || echo 'nameserver 127.0.0.11' >> /etc/resolv.conf
 COPY supervisord/supervisord.conf /etc/supervisor/supervisord.conf
@@ -54,9 +53,37 @@ RUN dos2unix /etc/vpnc/vpnc-script
 RUN chmod +x /usr/bin/connect-to-vpn.sh
 RUN chmod 755 /etc/vpnc/vpnc-script
 
+#
+# Copy the openconnect library dependency
+#
 RUN mkdir -p /tmp/build/openconnect
 COPY deps/libs/openconnect-8.10.tar.gz /tmp/openconnect.tar.gz
 RUN tar -xf /tmp/openconnect.tar.gz -C /tmp/build/openconnect --strip-components=1
+
+RUN apk add --no-progress --virtual .build-deps \
+        bash \
+        autoconf \
+	automake \
+        libtool \
+	libxml2-dev \
+         curl file g++ gnutls-dev gpgme gzip libev-dev \
+                    libnl3-dev libseccomp-dev libxml2-dev  linux-headers \
+                    linux-pam-dev make readline-dev tar \
+                    sed readline procps
+
+#
+# Copy the stoken library dependency
+#
+RUN mkdir -p /tmp/build/stoken
+COPY deps/libs/stoken-0.92.tar.gz /tmp/stoken.tar.gz
+RUN tar -xf /tmp/stoken.tar.gz -C /tmp/build/stoken --strip-components=1
+
+RUN cd /tmp/build/stoken \
+        && bash autogen.sh \
+        && ./configure \
+        && make install \
+        && make \
+        && cd /
 
 RUN set -ex \
 
@@ -79,13 +106,13 @@ RUN set -ex \
             ## Build and install
 
             && cd /tmp/build/openconnect \
-            && ./configure \
+            && ./configure --with-vpnc-script=/etc/vpnc/vpnc-script \
             && make \
             && make install \
             && cd / \
 
             # Cleanup
 
-            && apk del .openconnect-build-deps
+            && apk del .build-deps
 
 ENTRYPOINT ["/sbin/tini", "--", "/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
