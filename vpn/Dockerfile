@@ -66,7 +66,7 @@ RUN set -ex \
                     gnutls gnutls-utils iptables libev libintl \
                     libnl3 libseccomp linux-pam openssl \
                     libxml2 nmap-ncat socat openssh-client \
-                    openssl-dev p11-kit libproxy libproxy-dev \
+                    p11-kit libproxy \
 
             ## Install build dependencies - these are deleted after the build
 
