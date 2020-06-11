@@ -48,7 +48,7 @@ if [[ -z "${BUILDTIME_VPN_GROUP}" ]]; then
   exit 1
 fi
 
-echo $BUILDTIME_VPN_PASSWORD | openconnect --no-dtls --authgroup $BUILDTIME_VPN_GROUP $BUILDTIME_VPN_SERVER --user=$BUILDTIME_VPN_USER --pid-file=${OPENCONNECT_PROCESS_PIDFILE} &
+echo $BUILDTIME_VPN_PASSWORD | openconnect --servercert pin-sha256:${BUILDTIME_VPN_CERT_HASH} --no-dtls --authgroup $BUILDTIME_VPN_GROUP $BUILDTIME_VPN_SERVER --user=$BUILDTIME_VPN_USER --pid-file=${OPENCONNECT_PROCESS_PIDFILE} &
 VPN_PROCESS=$!
 
 [ $? -ne 0 ] && echo "Vpn failed to start!" && \
