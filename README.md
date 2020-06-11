@@ -1,4 +1,4 @@
-# Demo proof of concept of mounting network shares behind a VPN connection
+# Mount samba shares behind VPN in docker
 
 This demo can be run with `docker`
 
