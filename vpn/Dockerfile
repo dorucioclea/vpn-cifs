@@ -6,21 +6,29 @@ ARG ALPINE_VERSION=3.11.5
 FROM alpine:${ALPINE_VERSION}
 
 LABEL openconnect.documentation="https://www.infradead.org/openconnect/index.html"
+
 #
-# VERY IMPORTANT: In order for our entrypoint/command scripts to receive signal to stop, we need to specify that through STOPSIGNAL
+# In order for our entrypoint/command scripts to receive signal to stop
+#
+#  we need to specify that through STOPSIGNAL
 #
 
 STOPSIGNAL SIGINT
 
+#
+# Define list of arguments
+#
 ARG VPN_SERVER
 ARG VPN_GROUP
 ARG VPN_PASSWORD
 ARG VPN_USER
 ARG VPN_CERT_HASH
 
-ENV LANG=en_US.UTF-8
-ENV TZ=UTC
-
+#
+# Assign environment variables for the VPN script
+#
+# from the arguments received above
+#
 ENV BUILDTIME_VPN_SERVER=${VPN_SERVER}
 ENV BUILDTIME_VPN_USER=${VPN_USER}
 ENV BUILDTIME_VPN_PASSWORD=${VPN_PASSWORD}
@@ -30,6 +38,9 @@ ENV BUILDTIME_VPN_CERT_HASH=${VPN_CERT_HASH}
 ENV OPENCONNECT_TIMESTAMP=true
 ENV OPENCONNECT_VERBOSE=false
 ENV OPENCONNECT_NON-INTER=true
+
+ENV LANG=en_US.UTF-8
+ENV TZ=UTC
 
 # 
 # Refresh apk index and upgrade
@@ -48,6 +59,13 @@ RUN apk add \
 #
 # Always add the docker DNS server
 #
+# This IP address represents Docker's embedded DNS server and will be used for any container which 
+# is connected to a user-defined network. 
+#
+# It is a requirement that any container connected to a user-defined use the embedded DNS server.
+#
+# Below we check if it's already in /etc/resolv.conf and if it's not, we add it
+#
 RUN grep -qxF 'nameserver 127.0.0.11' /etc/resolv.conf || echo 'nameserver 127.0.0.11' >> /etc/resolv.conf
 
 #
@@ -56,6 +74,9 @@ RUN grep -qxF 'nameserver 127.0.0.11' /etc/resolv.conf || echo 'nameserver 127.0
 #
 # Convert it to unix line endings
 # Make it an executable
+#
+# We also patch the Docker nameserver in - these are changes 
+# over the original file that can be found at the above url
 #
 
 COPY scripts/vpnc-script /etc/vpnc/vpnc-script
@@ -75,7 +96,6 @@ RUN chmod +x /usr/bin/connect-to-vpn.sh
 # Copy the supervisord script
 #
 COPY supervisord/supervisord.conf /etc/supervisor/supervisord.conf
-
 
 #
 # Copy the openconnect library dependency
